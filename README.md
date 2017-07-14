@@ -1,6 +1,6 @@
 # EasyPR
 
-EasyPR是一个开源的中文车牌识别系统，其目标是成为一个简单、高效、准确的车牌识别库。
+EasyPR是一个开源的中文车牌识别系统，其目标是成为一个简单、高效、准确的非限制场景(unconstrained situation)下的车牌识别库。
 
 相比于其他的车牌识别系统，EasyPR有如下特点：
 
@@ -10,77 +10,46 @@ EasyPR是一个开源的中文车牌识别系统，其目标是成为一个简�
 
 ### 更新
 
-当前master分支下的版本有以下几点更新：
+本次更新版本是1.6alpha版本，主要有以下几点更新：
 
-1.支持linux和mac编译，如果碰到问题请在issue里提问。
+1. 采用灰度字符训练以及新的特征，使中文字符正确率上升到了86%，比上个版本提升了近14个百分点。
 
-2.增加一个无需配置opencv的[懒人版](http://git.oschina.net/easypr/EasyPR/attach_files)。仅仅支持vs2013，也只能在debug和x86下运行，其他情况的话还是得配置opencv。感谢范文捷同学的帮助。页面里的两个文件都要下载，下载后用[7zip](http://www.7-zip.org/)解压。
+2. 借助于字符分割与识别算法的优化，在general_test上的完整识别率(0-error)从原先的59%首次上升到现在的70%，1-error则提升到了82%。
 
-本次更新是EasyPR 1.5beta版本，主要改进如下：
+3. 在车牌判断模块中，使用了新的SVM特征（颜色+投影），从而在保持鲁棒性的同时，提升了正确率。定位指标中FScore从76%提升到82%.
 
-1.增加了一种新的基于文字定位的定位方法 (MSER), 在面对低对比度，低光照以及大图像上有较强的鲁棒性。
+4. 新增一种新的字符分割方法，groundMSER字符分割方法。
 
-* 夜间的车牌图像
+5. 提供了近万张中文字符灰度图数据供训练，并且在主界面中提供了一个方法从free大神的车牌集里提取中文与英文字符。
 
-![夜间的车牌图像](resources/doc/res/night_1.jpg)
+6. 提供了两万两千张的字符灰度图数据，供训练灰度字符模型使用。
 
-* 对比度非常低的图像
+7. 代码优化与升级，许多bug修复。
 
-![对比度非常低的图像](resources/doc/res/contrast_1.jpg)
+8. Opencv3.2版本的支持，编译前仅需要将config.h中将#define CV_VERSION_THREE_ZERO改为#define CV_VERSION_THREE_TWO即可。
 
-* 近距离的图像
+9. 更加友好的linux与mac版本支持，使用CMake即可顺利编译，单独的utf-8与gbk的文件供分别的系统使用。
 
-![近距离的图像](resources/doc/res/near_1.jpg)
+两点注意：
 
-* 高分辨率的图像
+1. 对于目前的linux版本，推荐使用Opencv3.2版本。3.2以下的版本例如3.0和3.1在识别时可能会出现车牌识别结果为空的情况。稳妥起见，建议都升级到最新的3.2版本。Windows版本没有这个问题。
 
-![高分辨率的图像](resources/doc/res/big_1.jpg)
-
-2.更加合理的评价协议。结合新增的GroundTruth文件与ICDAR2003的协议，使得整体评价指标更为合理。通用数据集里同时增加了近50张新图片。文字定位方法在面对这些复杂图片时比先前的SOBEL+COLOR的方法定位率提升了27个百分点。
-
-实际运行时，使用了文字定位与颜色定位的结合，最终对256张的测试图片的测试结果如下：
-
-![v1.5版运行结果](resources/doc/res/v1.5_result.jpg)
-
-3.使用了非极大值抑制算法去除相邻的车牌，使得最终输出变的合理。即便使用多个定位方法，最终也只会输出一个车牌，而且是可能性最大的车牌。
-
-4.基于局部空间的大津阈值算法与自适应阈值算法，提升了文字分割与分子识别的准确率。
-
-* 车牌图像
-
-![车牌图像](resources/doc/res/not_avg_contrast.jpg)
-
-* 普通大津阈值结果
-
-![普通大津阈值结果](resources/doc/res/normal_ostu.jpg)
-
-* 空间大津阈值结果
-
-![空间大津阈值结果](resources/doc/res/spatial_ostu.jpg)
-
-5.新的SVM模型与特征（LBP），提升了车牌判断的鲁棒性，新的中文ANN识别模型，提升了中文识别的整体准确率近15个百分点。
-
-6.增加了Grid Search方法，可以进行自动调参。
-
-7.首次增加了多线程支持，基于OpenMP的文字定位方法，在最终的识别速度上，比原先的单线程方法提高了接近2倍。
-
-8.替换了一部分中文注释，使得windows下的visual studio在面对全部以LF结尾的文件时，也能成功通过编译。目前的程序只要opencv配置正确，gitosc上通过zip下载下来的程序可以直接通过编译并运行。
-
-关于本次改动的具体内容可以看博客中的[介绍](http://www.cnblogs.com/subconscious/p/5637735.html)。
-
-注意，目前1.4和1.5版的SVM训练好的文件在使用时会有问题，这个原因可能跟opencv3的实现改变有关。建议要训练SVM的话使用基于opencv2的1.3版。
+2. 对于Opencv3.2版本，可以在config.h中增加宏定义#define CV_VERSION_THREE_TWO解决编译时的错误, 这是因为接口不兼容导致的.
 
 ### 跨平台
 
 目前除了windows平台以外，还有以下其他平台的EasyPR版本。一些平台的版本可能会暂时落后于主平台。
 
+现在有一个无需配置opencv的1.5版本的[懒人版](http://git.oschina.net/easypr/EasyPR/attach_files)。仅仅支持vs2013，也只能在debug和x86下运行，其他情况的话还是得配置opencv。感谢范文捷同学的帮助。页面里的两个文件都要下载，下载后用[7zip](http://www.7-zip.org/)解压。
+
 |版本 | 开发者 | 版本 | 地址 
 |------|-------|-------|-------
 | android |  goldriver  |  1.4  |  [linuxxx/EasyPR_Android](https://github.com/linuxxx/EasyPR_Android)
-| linux | Micooz  |  1.5  |  已跟EasyPR整合
+| linux | Micooz  |  1.6  |  已跟EasyPR整合
 | ios | zhoushiwei |  1.3  |  [zhoushiwei/EasyPR-iOS](https://github.com/zhoushiwei/EasyPR-iOS)
-| mac | zhoushiwei,Micooz |  1.5  | 已跟EasyPR整合
+| mac | zhoushiwei,Micooz |  1.6  | 已跟EasyPR整合
 | java | fan-wenjie |  1.2  | [fan-wenjie/EasyPR-Java](https://github.com/fan-wenjie/EasyPR-Java)
+| 懒人版 | fan-wenjie |  1.5  | [git/oschina](http://git.oschina.net/easypr/EasyPR/attach_files)
 
 ### 兼容性
 
@@ -197,11 +166,12 @@ EasyPR的resources/image/general_test文件夹下的图片数据遵循[GDSL协�
 | src |  所有源文件
 | include | 所有头文件
 | test | 测试程序
-| etc | 中文字符映射表
-| resources/model | 机器学习的模型
+| model | 机器学习的模型
+| resources/text | 中文字符映射表
 | resources/train | 训练数据与说明
 | resources/image | 测试用的图片
 | resources/doc | 相关文档
+| tmp | 训练数据读取目录，需要自建
 
 以下表格是resources/image目录中子目录的解释:
 
@@ -209,7 +179,7 @@ EasyPR的resources/image/general_test文件夹下的图片数据遵循[GDSL协�
 |------|----------
 | general_test | GDTS（通用数据测试集）
 | native_test | NDTS（本地数据测试集）
-| tmp | Debug模式下EasyPR输出中间图片的目录
+| tmp | Debug模式下EasyPR输出中间图片的目录，需要自建
 
 以下表格是src目录中子目录的解释:
 
@@ -244,6 +214,15 @@ EasyPR的resources/image/general_test文件夹下的图片数据遵循[GDSL协�
 | chars.hpp | 字符识别相关
 | plate.hpp | 车牌识别相关
 
+以下表格是train目录下文件的解释:
+
+|文件 | 解释
+|------|----------
+| ann_train.cpp | 训练二值化字符
+| annCh_train.hpp | 训练中文灰度字符
+| svm_train.hpp | 训练车牌判断
+| create_data.hpp | 生成合成数据
+
 ### 使用
 
 请参考[这里](Usage.md)
@@ -254,7 +233,7 @@ EasyPR的resources/image/general_test文件夹下的图片数据遵循[GDSL协�
 
 如果你在使用过程中遇到任何问题，请在[这里](https://github.com/liuruoze/EasyPR/issues)告诉我们。
 
-EasyPR讨论QQ群号是：一群：366392603(已满)，二群：583022188， 加前请注明EasyPR学习讨论。
+EasyPR讨论QQ群号是：一群：366392603，二群：583022188，三群：637614031，加前请注明EasyPR学习讨论。
 
 ### Contributors
 
@@ -274,6 +253,8 @@ EasyPR讨论QQ群号是：一群：366392603(已满)，二群：583022188， 加
 
 * fan-wenjie：1.5版opencv整合版提供者
 
+* Free：1.6版数据提供者
+
 ### 鸣谢
 
-taotao1233，邱锦山，唐大侠，jsxyhelu，如果有一天(zhoushiwei)，学习奋斗，袁承志，圣城小石匠，goldriver，Micooz，梦里时光，Rain Wang，任薛纪，ahccom，星夜落尘，海豚嘎嘎(车主之家)，刘超，以及所有对EasyPR贡献数据的热心同学。
+taotao1233，邱锦山，唐大侠，jsxyhelu，如果有一天(zhoushiwei)，学习奋斗，袁承志，圣城小石匠，goldriver，Micooz，梦里时光，Rain Wang，任薛纪，ahccom，星夜落尘，海豚嘎嘎(车主之家)，刘超，Free大神，以及所有对EasyPR贡献数据的热心同学。

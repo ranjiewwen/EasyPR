@@ -12,9 +12,12 @@ resources/image/tmp/
 experi
 /tmp
 resources/image/native_test/*.jpg
+resources/image/native_test/cars
+resources/image/native_test/*.py
+resources/image/phone_test
 *.vsp
 *.psess
-
+*.DS_Store
 #ignore thumbnails created by windows
 Thumbs.db
 #Ignore files build by Visual Studio

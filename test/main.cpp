@@ -15,11 +15,11 @@ namespace demo {
 
 int accuracyTestMain() {
   std::shared_ptr<easypr::Kv> kv(new easypr::Kv);
-  kv->load("etc/chinese_mapping");
+  kv->load("resources/text/chinese_mapping");
 
   bool isExit = false;
   while (!isExit) {
-    easypr::Utils::print_file_lines("etc/batch_test_menu");
+    easypr::Utils::print_file_lines("resources/text/batch_test_menu");
     std::cout << kv->get("make_a_choice") << ":";
 
     int select = -1;
@@ -30,22 +30,85 @@ int accuracyTestMain() {
       std::cin >> select;
       isRepeat = false;
       switch (select) {
-        case 1:
-          accuracyTest("resources/image/general_test", result);
-          break;
-        case 2:
-          accuracyTest("resources/image/native_test", result);
-          break;
-        case 3:
-          gridSearchTest("resources/image/general_test");
-          break;
-        case 4:
-          isExit = true;
-          break;
-        default:
-          std::cout << kv->get("input_error") << ":";
-          isRepeat = true;
-          break;
+      case 1:
+        accuracyTest("resources/image/general_test", result);
+        break;
+      case 2:
+        accuracyTest("resources/image/native_test", result);
+        break;
+      case 3:
+        gridSearchTest("resources/image/general_test");
+        break;
+      case 4:
+        isExit = true;
+        break;
+      default:
+        std::cout << kv->get("input_error") << ":";
+        isRepeat = true;
+        break;
+      }
+    }
+  }
+  return 0;
+}
+
+int trainChineseMain() {
+  std::shared_ptr<easypr::Kv> kv(new easypr::Kv);
+  kv->load("resources/text/chinese_mapping");
+
+  bool isExit = false;
+  while (!isExit) {
+    easypr::Utils::print_file_lines("resources/text/train_menu");
+    std::cout << kv->get("make_a_choice") << ":";
+
+    int select = -1;
+    bool isRepeat = true;
+    while (isRepeat) {
+      std::cin >> select;
+      isRepeat = false;
+      switch (select) {
+      case 1:
+          {
+            easypr::AnnChTrain ann("tmp/annCh", "tmp/annCh.xml");
+            ann.setNumberForCount(100);
+            ann.train();
+          }
+        break;
+      case 2:
+          {
+            easypr::AnnChTrain ann("tmp/annCh", "tmp/annCh.xml");
+            ann.setNumberForCount(350);
+            ann.train();
+          }
+        break;
+      case 3:
+          {
+            easypr::AnnChTrain ann("tmp/annCh", "tmp/annCh.xml");
+            ann.setNumberForCount(700);
+            ann.train();
+          }
+        break;
+      case 4:
+          {
+            easypr::AnnChTrain ann("tmp/annCh", "tmp/annCh.xml");
+            ann.setNumberForCount(1000);
+            ann.train();
+          }
+        break;
+      case 5:
+          {
+            easypr::AnnChTrain ann("tmp/annCh", "tmp/annCh.xml");
+            ann.setNumberForCount(1500);
+            ann.train();
+          }
+        break;
+      case 6:
+        isExit = true;
+        break;
+      default:
+        std::cout << kv->get("input_error") << ":";
+        isRepeat = true;
+        break;
       }
     }
   }
@@ -54,11 +117,11 @@ int accuracyTestMain() {
 
 int testMain() {
   std::shared_ptr<easypr::Kv> kv(new easypr::Kv);
-  kv->load("etc/chinese_mapping");
+  kv->load("resources/text/chinese_mapping");
 
   bool isExit = false;
   while (!isExit) {
-    Utils::print_file_lines("etc/test_menu");
+    Utils::print_file_lines("resources/text/test_menu");
     std::cout << kv->get("make_a_choice") << ":";
 
     int select = -1;
@@ -181,7 +244,7 @@ void command_line_handler(int argc, const char* argv[]) {
     | Plate judge operations
     | ------------------------------------------
     |
-    | $ demo judge -f file --svm resources/model/svm.xml
+    | $ demo judge -f file --svm model/svm.xml
     |
     | ------------------------------------------
     */
@@ -196,10 +259,10 @@ void command_line_handler(int argc, const char* argv[]) {
     | Plate recognize operations
     | ------------------------------------------
     |
-    | $ demo recognize -p file --svm resources/model/svm.xml
-    |                          --ann resources/model/ann.xml
-    | $ demo recognize -pb dir/ --svm resources/model/svm.xml
-    |                           --ann resources/model/ann.xml
+    | $ demo recognize -p file --svm model/svm.xml
+    |                          --ann model/ann.xml
+    | $ demo recognize -pb dir/ --svm model/svm.xml
+    |                           --ann model/ann.xml
     |
     | ------------------------------------------
     */
@@ -351,7 +414,7 @@ void command_line_handler(int argc, const char* argv[]) {
 
 int main(int argc, const char* argv[]) {
   std::shared_ptr<easypr::Kv> kv(new easypr::Kv);
-  kv->load("etc/chinese_mapping");
+  kv->load("resources/text/chinese_mapping");
 
   if (argc > 1) {
     // handle command line execution.
@@ -361,7 +424,7 @@ int main(int argc, const char* argv[]) {
 
   bool isExit = false;
   while (!isExit) {
-    easypr::Utils::print_file_lines("etc/main_menu");
+    easypr::Utils::print_file_lines("resources/text/main_menu");
     std::cout << kv->get("make_a_choice") << ":";
 
     int select = -1;
@@ -391,14 +454,15 @@ int main(int argc, const char* argv[]) {
           }
           break;
         case 5:
-          easypr::preprocess::generate_gdts();
+          easypr::demo::trainChineseMain();
           break;
         case 6: {
-          easypr::Utils::print_file_lines("etc/dev_team");
+          //TODO: genenrate gray characters
+          easypr::demo::accuracyCharRecognizeTest("resources/image/tmp/plates_200k");
           break;
         }
         case 7: {
-          easypr::Utils::print_file_lines("etc/thanks");
+          easypr::Utils::print_file_lines("resources/text/thanks");
           break;
         }
         case 8:

@@ -40,7 +40,6 @@ int test_plate_judge() {
   cv::Mat src = imread("resources/image/plate_judge.jpg");
 
   vector<cv::Mat> matVec;
-
   vector<cv::Mat> resultVec;
 
   CPlateLocate lo;
@@ -108,7 +107,7 @@ int test_plate_recognize() {
   CPlateRecognize pr;
   pr.setLifemode(true);
   pr.setDebug(false);
-  pr.setMaxPlates(4);
+  pr.setMaxPlates(1);
   //pr.setDetectType(PR_DETECT_COLOR | PR_DETECT_SOBEL);
   pr.setDetectType(easypr::PR_DETECT_CMSER);
 
